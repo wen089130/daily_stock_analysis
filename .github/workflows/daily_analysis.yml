@@ -126,6 +126,16 @@ jobs:
           # 方式五：Pushover
           PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
           PUSHOVER_API_TOKEN: ${{ secrets.PUSHOVER_API_TOKEN }}
+          # 股票分析配置
+          AUTO_STOCK_SELECT_ENABLED: ${{ vars.AUTO_STOCK_SELECT_ENABLED || 'false' }}
+          AUTO_STOCK_LIMIT: ${{ vars.AUTO_STOCK_LIMIT || '10' }}
+          AUTO_MIN_AMOUNT_YI: ${{ vars.AUTO_MIN_AMOUNT_YI || '5' }}
+          AUTO_MIN_PCT: ${{ vars.AUTO_MIN_PCT || '1' }}
+          AUTO_MAX_PCT: ${{ vars.AUTO_MAX_PCT || '7' }}
+          AUTO_MIN_TURNOVER: ${{ vars.AUTO_MIN_TURNOVER || '1' }}
+          AUTO_MIN_VOLUME_RATIO: ${{ vars.AUTO_MIN_VOLUME_RATIO || '1.2' }}
+          AUTO_ALLOWED_PREFIX: ${{ vars.AUTO_ALLOWED_PREFIX || '60,00,30,68' }}
+
           
           # 方式六：PushPlus ⬅️ 新增！
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
@@ -202,6 +212,15 @@ jobs:
           echo "=========================================="
           echo "⏰ 时间: $(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S')"
           echo "🎯 运行模式: $MODE"
+          if [ "${AUTO_STOCK_SELECT_ENABLED,,}" = "true" ]; then
+            echo " 正在自动选股..."
+            AUTO_CODES="$(python scripts/auto_select.py)"
+            if [ -n "$AUTO_CODES" ]; then
+              export STOCK_LIST="$AUTO_CODES"
+            fi
+          fi
+
+          
           echo "📊 自选股: $STOCK_LIST"
           echo "📝 报告类型: $REPORT_TYPE"
           echo ""
